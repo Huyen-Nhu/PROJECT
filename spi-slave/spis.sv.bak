@@ -1,0 +1,53 @@
+module spis(
+	input logic mosi, cs, rstn, clk,
+	input logic [7:0]tx,
+	output logic miso, flag,
+	output logic [7:0]rx
+	);
+	logic [2:0]cnt; /// dem so bit truyen
+	logic [7:0]data;
+	logic [1:0]next, current;
+	
+	localparam idle = 2'b00;
+	localparam able = 2'b01;
+	localparam load = 2'b10;
+	localparam done = 2'b11;
+	
+	always_comb begin 
+	case (current)
+	idle: next = (!cs) ? able : idle;
+	able: next = load;
+	load: next = (!cnt)? idle : load;
+	default: next = idle;
+	endcase
+	end
+	
+	always_ff @ (posedge clk, negedge rstn) begin
+	if (!rstn) begin 
+		current <= idle;
+		end else current <= next;
+	end
+	
+	always_comb begin
+		data<=0;
+		flag<=0;
+		miso<=0;
+		cnt<=0;
+		
+		case (current)
+		
+		idle:	begin
+				flag <=1;
+				rx <= data;
+				end
+			
+		able: data <= tx;
+		
+		load: begin
+			miso <= data[7];
+			data <= {data[6:0], mosi};
+			cnt <= cnt+1;
+			end
+			endcase
+	end
+endmodule
