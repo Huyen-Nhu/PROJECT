@@ -1,0 +1,35 @@
+module mul32bit(
+		input logic [31:0]mul1, [31:0]mul2,
+		output logic [63:0]result
+		);
+		logic [31:0]a,b;
+		logic [31:0]x[31:0];
+		logic [63:0]y[31:0];
+		logic [63:0]z[30:0];
+		logic cout[30:0];
+assign a=mul1;
+assign b=mul2;
+
+genvar i,j;
+generate
+	for (i=0;i<32;i++) begin
+		for (j=0;j<32;j++) begin
+			assign x[i][j]=b[i]&a[j];
+			end
+		shiftleft(.in(x[i]),.n(i),.out(y[i]));
+	end
+endgenerate
+
+
+
+
+
+		adder64bit addo(.a(y[0][63:0]),.b(y[1][63:0]),.cin(0),.sum(z[0][63:0]),.carry_out(cout[0]));
+genvar k;
+generate
+	for (k=1;k<31;k++) begin
+		adder64bit addt(.a(y[k+1][63:0]),.b(z[k-1][63:0]),.cin(0),.sum(z[k][63:0]),.carry_out(cout[k]));
+	end
+endgenerate
+assign result=z[30][63:0];
+endmodule
