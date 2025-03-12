@@ -1,10 +1,3 @@
-/*
- * Voltmetter.c
- *
- * Created: 9/13/2024 2:01:26 AM
- * Author : Chisnhaan
- */ 
-
 #include <avr/io.h>
 #define F_CPU 8000000UL
 #include "util/delay.h"
